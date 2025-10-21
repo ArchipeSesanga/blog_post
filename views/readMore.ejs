@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Read More</title>
+    <link href="style.css" rel="stylesheet" />
+</head>
+
+<body class="bg-light">
+    <div class="container">
+        <%- include('partials/header'); %>
+    </div>
+
+
+    <div class="container d-flex justify-content-center">
+
+        <div class="col p-4 d-flex flex-column position-static"> <strong
+                class="d-inline-block mb-2 text-primary-emphasis">Genre</strong>
+            <h3 class="mb-0">
+                <%= post.title %>
+            </h3>
+            <div class="mb-1 text-body-secondary">
+                <%= new Date(post.date).toDateString() %>
+            </div>
+            <p class="card-text mb-auto">
+                <%= post.content %>
+            </p>
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>
