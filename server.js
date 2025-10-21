@@ -4,7 +4,7 @@ import axios from "axios";
 
 const app = express();
 const port = 3000;
-const API_URL = "http://localhost:4000";
+const API_URL = "http://localhost:4000"; // Backend API URL
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
@@ -13,100 +13,85 @@ app.set("views", "./views");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Route to render the main page
+// 🏠 Home Page (List all posts)
 app.get("/", async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/posts`);
-    console.log(response);
     res.render("index.ejs", { posts: response.data });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching posts" });
+    console.error("❌ Error fetching posts:", error.message);
+    res.status(500).send("Error loading posts.");
   }
 });
 
-
-// Get post by ID
-app.get("/posts/:id", async (req, res) => {
-  try {
-    const url = `${API_URL}/posts/${req.params.id}`;
-    console.log("🔍 Fetching:", url);
-
-    const response = await axios.get(url);
-    const post = response.data;
-
-    res.render("readMore", { post });
-  } catch (error) {
-    console.error("❌ Error fetching post:", error.message);
-
-    if (error.response) {
-      console.error("Status:", error.response.status);
-      console.error("Data:", error.response.data);
-    }
-
-    res.status(500).json({ message: "Error fetching post" });
-  }
+// 🆕 New Post Page
+app.get("/new", (req, res) => {
+  res.render("newPost.ejs", {
+    heading: "Create New Post",
+    submit: "Create Post",
+  });
 });
 
-
-
-
+// 📝 Edit Post Page
 app.get("/edit/:id", async (req, res) => {
   try {
     const response = await axios.get(`${API_URL}/posts/${req.params.id}`);
-    console.log(response.data);
     res.render("modify.ejs", {
       heading: "Edit Post",
       submit: "Update Post",
       post: response.data,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching post" });
+    console.error("❌ Error fetching post for edit:", error.message);
+    res.status(500).send("Error loading post for editing.");
   }
 });
 
-
-// Route to render the new post page
-app.get("/new", (req, res) => {
-  res.render("newPost", { heading: "New Post", submit: "Create Post" });
+// 🔍 View Single Post Page
+app.get("/posts/:id", async (req, res) => {
+  try {
+    const response = await axios.get(`${API_URL}/posts/${req.params.id}`);
+    res.render("readMore.ejs", { post: response.data });
+  } catch (error) {
+    console.error("❌ Error fetching post:", error.message);
+    res.status(500).send("Error loading post.");
+  }
 });
 
-
-// Create a new post
+// ➕ Create Post (POST)
 app.post("/api/posts", async (req, res) => {
   try {
-    const response = await axios.post(`${API_URL}/posts`, req.body);
-    console.log(response.data);
+    await axios.post(`${API_URL}/posts`, req.body);
     res.redirect("/");
   } catch (error) {
-    res.status(500).json({ message: "Error creating post" });
+    console.error("❌ Error creating post:", error.message);
+    res.status(500).send("Error creating post.");
   }
 });
 
-// Partially update a post
+// ✏️ Update Post (PATCH)
 app.post("/api/posts/:id", async (req, res) => {
-  console.log("called");
   try {
-    const response = await axios.patch(
-      `${API_URL}/posts/${req.params.id}`,
-      req.body
-    );
-    console.log(response.data);
+    await axios.patch(`${API_URL}/posts/${req.params.id}`, req.body);
     res.redirect("/");
   } catch (error) {
-    res.status(500).json({ message: "Error updating post" });
+    console.error("❌ Error updating post:", error.message);
+    res.status(500).send("Error updating post.");
   }
 });
 
-// Delete a post
+// ❌ Delete Post
 app.get("/api/posts/delete/:id", async (req, res) => {
   try {
     await axios.delete(`${API_URL}/posts/${req.params.id}`);
     res.redirect("/");
   } catch (error) {
-    res.status(500).json({ message: "Error deleting post" });
+    console.error("❌ Error deleting post:", error.message);
+    res.status(500).send("Error deleting post.");
   }
 });
 
+// 🟢 Start Server
 app.listen(port, () => {
-  console.log(`Backend server is running on http://localhost:${port}`);
+  console.log(`Frontend server running at http://localhost:${port}`);
 });
